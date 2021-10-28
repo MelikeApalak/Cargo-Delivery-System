@@ -1,0 +1,103 @@
+using Google.Cloud.Firestore;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+
+namespace deneme
+{ 
+
+    public partial class followForm : Form
+    {
+        FirestoreDb database;
+        public followForm()
+        {
+            InitializeComponent();
+        }
+        private void loadDB()
+        {
+            string path = AppDomain.CurrentDomain.BaseDirectory + @"cloudfire.json";
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
+
+            database = FirestoreDb.Create("cloudfire-f19e1");
+           // MessageBox.Show("Successful");
+        }
+        private void followForm_Load(object sender, EventArgs e)
+        {
+            loadDB();
+            panel1.BackColor = Color.FromArgb(200, 255, 255, 255);
+          
+            
+            
+            
+            
+            //panel2.BackColor = Color.FromArgb(155, 89, 182);
+            //label1.BackColor = Color.Transparent;
+            //label1.ForeColor = Color.White;
+
+            //buttonClose.BackColor = Color.Transparent;
+            //buttonMinimize.BackColor = Color.Transparent;
+        }
+
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            GetAllDocuments("customer");
+        }
+        async void GetAllDocuments(string nameOfCollection)
+        {
+            Query Qref = database.Collection(nameOfCollection);
+            QuerySnapshot snap = await Qref.GetSnapshotAsync();
+
+            foreach (DocumentSnapshot docsnap in snap.Documents)
+            {
+                customer cus = docsnap.ConvertTo<customer>();
+
+                if (docsnap.Exists)
+                {
+                    dataGridView1.Rows.Add(docsnap.Id, cus.id, cus.fullname, cus.address);
+                }
+            }
+        }
+
+        private void addButton_Click(object sender, EventArgs e)
+        { // müşteri ekleme
+            loadDB();
+
+            // for null fileds
+            if (string.IsNullOrWhiteSpace(customertxt.Text) || string.IsNullOrWhiteSpace(adressTxtbx.Text))
+            {
+                MessageBox.Show("Please fill all the fields");
+            }
+           
+            else
+            {
+                // add to database
+                DocumentReference newDoc = database.Collection("customer").Document(customertxt.Text);
+
+
+                customer cus = new customer()
+                {
+                    id =customertxt.Text,
+                    fullname = customertxt.Text,
+                    address = adressTxtbx.Text
+                };
+
+                newDoc.SetAsync(cus);
+                //isThere(newAdmin);
+                MessageBox.Show("customer added successfully");
+            }
+
+        }
+    }
+}
