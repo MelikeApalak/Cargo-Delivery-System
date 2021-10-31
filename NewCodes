@@ -1,0 +1,151 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Traveling_Salesperson_Problem
+{
+    class Solution
+    {
+        public static List<Location> Locations = new List<Location>()
+        {
+            new Location() {X = 1, Y = 1},
+            new Location() {X = 1, Y = 2},
+            new Location() {X = 2, Y = 2}
+        };
+
+        public static Location StartLocation = new Location() { X = 0, Y = 0 };
+
+        public static List<Location> AllLocations = createAllLocations(StartLocation, Locations);
+
+        public static List<List<Location>> AllRoutes = new List<List<Location>>();
+
+        public List<double> AllCosts = new List<double>();
+
+        //connecting the arrays
+        static List<Location> createAllLocations(Location array1, List<Location> array2)
+        {
+            //Start locaion is added
+            List<Location> newArray = new List<Location>();
+            newArray.Add(array1);
+            //for another locations
+            foreach(var location in array2)
+            {
+                newArray.Add(location);
+            }
+            
+            return newArray;
+        }
+        
+        public void showPaths()
+        {
+            
+            findTheAllRoutes(Locations, 0, Locations.Count - 1);
+            
+            for(int n = 0; n < AllRoutes.Count; n ++)
+            {
+                List<Location> item = new List<Location>();
+                item = AllRoutes[n];
+                foreach(var i in item)
+                {
+                    Console.Write("({0},", i.X);
+                    Console.Write("{0}),", i.Y);
+                    Console.WriteLine();
+                }
+                Console.WriteLine("-----------");
+            }
+
+
+        }
+
+        public void findTheAllRoutes(List<Location> locations, int startIndex, int endIndex)
+        {
+        
+            if (startIndex == endIndex)
+            {
+                AllRoutes.Add(new List<Location>(locations));
+            }
+            else
+            {
+                for (int i = startIndex; i <= endIndex; i++)
+                {
+                    locations = swap(locations, startIndex, i);
+                    findTheAllRoutes(locations, startIndex + 1, endIndex);
+                    locations = swap(locations, startIndex, i);
+
+                }
+            }
+            
+        
+        }
+        private static List<Location> swap(List<Location> a, int i, int j)
+        {
+            Location temp;
+            List<Location> array = a;
+            temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+
+            return array;
+        }
+
+        public void computeCostOfAllRoute()
+        {
+            int numberOfLocations = Locations.Count;
+            int numberOfRoutes = 6;// will change it
+            foreach(var route in AllRoutes)
+            {
+                double cost = 0;
+                for(int i = 0; i < numberOfLocations; i++)
+                {
+                    cost += distanceBetweenTo(i, i + 1);
+                }
+                AllCosts.Add(cost);
+            }
+        }
+        double distanceBetweenTo(int fromNode, int toNode)
+        {
+            double cost = 0.0;
+            //S-0 , A-1, B-2, C-3
+            cost = DistanceMatrix[fromNode, toNode];
+            return cost;
+        }
+        public double[,] DistanceMatrix = ComputeEuclideanDistanceMatrix(AllLocations);
+        static double[,] ComputeEuclideanDistanceMatrix(in List<Location> locations)
+        {
+            // Calculate the distance matrix using Euclidean distance.
+            int locationNumber = locations.Count;
+            double[,] distanceMatrix = new double[locationNumber, locationNumber];
+            for (int fromNode = 0; fromNode < locationNumber; fromNode++)
+            {
+                for (int toNode = 0; toNode < locationNumber; toNode++)
+                {
+                    if (fromNode == toNode)
+                        distanceMatrix[fromNode, toNode] = 0;
+                    else
+                        distanceMatrix[fromNode, toNode] =
+                            (double)Math.Sqrt(Math.Pow(locations[toNode].X - locations[fromNode].X, 2) +
+                                            Math.Pow(locations[toNode].Y - locations[fromNode].Y, 2));
+                }
+            }
+            return distanceMatrix;
+        }
+
+
+
+        void printMatrix(double[,] matrix)
+        {
+            for(int i = 0; i<matrix.Length; i++)
+            {
+                Console.Write("[");
+                for(int j = 0; j<matrix.Length; j++)
+                {
+                    Console.Write("{0} , ", matrix[i,j]);
+                }
+                Console.Write("]");
+                Console.WriteLine("");
+            }
+        }
+    }
+}
