@@ -1,27 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Traveling_Salesperson_Problem
-{
-    class Solution
-    {
-        public static List<Location> Locations = new List<Location>()
-        {
-            new Location() {X = 1, Y = 1},
-            new Location() {X = 1, Y = 2},
-            new Location() {X = 2, Y = 2}
-        };
-
-        public static Location StartLocation = new Location() { X = 0, Y = 0 };
+public static Location StartLocation = new Location() { X = 0, Y = 0 };
 
         public static List<Location> AllLocations = createAllLocations(StartLocation, Locations);
 
-        public static List<List<Location>> AllRoutes = new List<List<Location>>();
+        public static List<List<Location>> AllPaths = new List<List<Location>>();
 
         public List<double> AllCosts = new List<double>();
+        public List<Location> Route = new List<Location>();
 
         //connecting the arrays
         static List<Location> createAllLocations(Location array1, List<Location> array2)
@@ -34,19 +18,35 @@ namespace Traveling_Salesperson_Problem
             {
                 newArray.Add(location);
             }
-            
+            /*int n = 1;
+            for(int i = 0; i < array2.GetLength(0); i++)
+            {
+                newArray[n, 0] = array2[i, 0];
+                newArray[n, 1] = array2[i, 1];
+                n++;
+            }*/
             return newArray;
         }
         
         public void showPaths()
         {
-            
-            findTheAllRoutes(Locations, 0, Locations.Count - 1);
-            
-            for(int n = 0; n < AllRoutes.Count; n ++)
+            /*for(int n = 0; n < AllPaths.Count; n ++)
             {
                 List<Location> item = new List<Location>();
-                item = AllRoutes[n];
+                item = AllPaths[n];
+                foreach(var i in item)
+                {
+                    Console.Write("({0},", i.X);
+                    Console.Write("{0}),", i.Y);
+                    Console.WriteLine(" ");
+                }
+            }*/
+            findTheAllPaths(Locations, 0, Locations.Count - 1);
+            //Console.WriteLine(AllPaths.Count);
+            /*for(int n = 0; n < AllPaths.Count; n ++)
+            {
+                List<Location> item = new List<Location>();
+                item = AllPaths[n];
                 foreach(var i in item)
                 {
                     Console.Write("({0},", i.X);
@@ -54,24 +54,25 @@ namespace Traveling_Salesperson_Problem
                     Console.WriteLine();
                 }
                 Console.WriteLine("-----------");
-            }
-
+            }*/
+            computeCostOfAllRoute();
+            findRouteThatMinCost();
 
         }
 
-        public void findTheAllRoutes(List<Location> locations, int startIndex, int endIndex)
+        public void findTheAllPaths(List<Location> locations, int startIndex, int endIndex)
         {
         
             if (startIndex == endIndex)
             {
-                AllRoutes.Add(new List<Location>(locations));
+                AllPaths.Add(new List<Location>(locations));
             }
             else
             {
                 for (int i = startIndex; i <= endIndex; i++)
                 {
                     locations = swap(locations, startIndex, i);
-                    findTheAllRoutes(locations, startIndex + 1, endIndex);
+                    findTheAllPaths(locations, startIndex + 1, endIndex);
                     locations = swap(locations, startIndex, i);
 
                 }
@@ -89,12 +90,28 @@ namespace Traveling_Salesperson_Problem
 
             return array;
         }
-
+        public  void  findRouteThatMinCost()
+        {
+            //List<Location> Route = new List<Location>();
+            double minCost = AllCosts[0];
+            //Console.WriteLine(minCost);
+            int index = 0;
+            for(int i = 0; i < AllCosts.Count; i++)
+            {
+                if(minCost > AllCosts[i])
+                {
+                    minCost = AllCosts[i];
+                    index = i;
+                }
+            }
+            Route = AllPaths[index];
+            
+        }
         public void computeCostOfAllRoute()
         {
             int numberOfLocations = Locations.Count;
             int numberOfRoutes = 6;// will change it
-            foreach(var route in AllRoutes)
+            foreach(var route in AllPaths)
             {
                 double cost = 0;
                 for(int i = 0; i < numberOfLocations; i++)
@@ -132,21 +149,7 @@ namespace Traveling_Salesperson_Problem
             return distanceMatrix;
         }
 
-        public List<Location> findRouteThatMinCost()
-        {
-            List<Location> Route = new List<Location>();
-            double minCost = AllCosts[0];
-            int index = 0;
-            for(int i = 0; i < AllCosts.Count; i++)
-            {
-                if(minCost > AllCosts[i])
-                {
-                    minCost = AllCosts[i];
-                    index = i;
-                }
-            }
-            return AllPaths[index];
-        }
+
 
         void printMatrix(double[,] matrix)
         {
@@ -161,5 +164,3 @@ namespace Traveling_Salesperson_Problem
                 Console.WriteLine("");
             }
         }
-    }
-}
