@@ -132,7 +132,21 @@ namespace Traveling_Salesperson_Problem
             return distanceMatrix;
         }
 
-
+        public List<Location> findRouteThatMinCost()
+        {
+            List<Location> Route = new List<Location>();
+            double minCost = AllCosts[0];
+            int index = 0;
+            for(int i = 0; i < AllCosts.Count; i++)
+            {
+                if(minCost > AllCosts[i])
+                {
+                    minCost = AllCosts[i];
+                    index = i;
+                }
+            }
+            return AllPaths[index];
+        }
 
         void printMatrix(double[,] matrix)
         {
